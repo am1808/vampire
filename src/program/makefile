@@ -22,7 +22,8 @@ time_series.o \
 temperature_pulse.o \
 localised_temperature_pulse.o \
 effective_damping.o \
-fmr.o
+fmr.o \
+fmr_hysteresis.o
 
 # Append module objects to global tree
 OBJECTS+=$(addprefix obj/program/,$(program_objects))

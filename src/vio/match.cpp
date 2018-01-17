@@ -754,6 +754,11 @@ namespace vin{
                 sim::program=15;
                 return EXIT_SUCCESS;
             }
+            test="fmr-hysteresis";
+            if(value==test){
+                sim::program=17;
+                return EXIT_SUCCESS;
+            }
             test="diagnostic-boltzmann";
             if(value==test){
                 sim::program=50;

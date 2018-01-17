@@ -460,6 +460,14 @@ int run(){
 	  		program::local_field_cool();
 	  		break;
 
+			case 17:
+				if(vmpi::my_rank==0){
+					std::cout << "fmr with hystereis-loop..." << std::endl;
+					zlog << "fmr with hystereis-loop..." << std::endl;
+				}
+				program::fmr_hysteresis();
+				break;
+
 		case 50:
 			if(vmpi::my_rank==0){
 				std::cout << "Diagnostic-Boltzmann..." << std::endl;

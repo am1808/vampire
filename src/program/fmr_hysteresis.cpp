@@ -108,11 +108,11 @@ void fmr_hysteresis(){
 	// enable fmr fields
 	sim::enable_fmr = true;
 
-	// // Initialize direction along z if not already set
-	// if(sim::fmr_field_unit_vector.size() != 3){
-	// 	sim::fmr_field_unit_vector.resize(3,0.0);
-	// 	sim::fmr_field_unit_vector[2] = 1.0;
-	// }
+	// Initialize direction along z if not already set
+	if(sim::fmr_field_unit_vector.size() != 3){
+		sim::fmr_field_unit_vector.resize(3,0.0);
+		sim::fmr_field_unit_vector[2] = 1.0;
+	}
 
 /*--------------- Hystersis loop simulation (from hysteresis.cpp) -------------*/
 	// Perform Field Loop -parity

@@ -504,8 +504,9 @@ void calculate_full_spin_fields(const int start_index,const int end_index){
 
 		// temporary constant for spin components
 		const double sx = atoms::x_spin_array[atom];
-		const double sy = atoms::x_spin_array[atom];
-		const double sz = atoms::x_spin_array[atom];
+		const double sy = atoms::y_spin_array[atom];
+		const double sz = atoms::z_spin_array[atom];
+      //const double mm = atoms::m_spin_array[atom];
 
 		// get material parameter
 		const int material=atoms::type_array[atom];
@@ -519,10 +520,60 @@ void calculate_full_spin_fields(const int start_index,const int end_index){
 		const double stpy = slonczewski_spin_polarization_unit_vector[1];
 		const double stpz = slonczewski_spin_polarization_unit_vector[2];
 
-		const double staj = slonczewski_aj[material];
-		const double stbj = slonczewski_bj[material];
+      // Save Free layer magnetisation
+      const std::vector<double>  mag_FL = stats::material_magnetization.get_magnetization();
+      //std::cout << "\t >>>> MFL\t" << mag_FL[0] << "\t" << mag_FL[1] << "\t" << mag_FL[2] << "\t" << mag_FL[3] << "\t"<< mag_FL[4] << "\t" << mag_FL[5] << "\t" << mag_FL[6] << "\t" << mag_FL[7] << "\t"<<  mag_FL[8] << "\t" << mag_FL[9] << "\t" << mag_FL[10] << "\t" << mag_FL[11] << "\t" << mag_FL[12] << "\t" << mag_FL[13] << "\t" << mag_FL[14] << "\t" << mag_FL[15] << "\t" << mag_FL[16] << "\t" << mag_FL[17] << "\t" << mag_FL[18] << "\t" << mag_FL[19] << "\t"  << mag_FL.size() <<std::endl;
+
+      // Angle between spin and current
+      //double s_dot_stp = (sx*stpx)+(sy*stpy)+(sz*stpz);
+      //double s_dot_stp = (sx*stpx)+(sz*stpz);
+      //stats::material_magnetization.calculate_magnetization_slonc(atoms::x_spin_array,atoms::y_spin_array,atoms::z_spin_array,atoms::m_spin_array);
+      double s_dot_stp = mag_FL[4*material+0]*mag_FL[4*1+0] +
+                         mag_FL[4*material+1]*mag_FL[4*1+1] +
+                         mag_FL[4*material+2]*mag_FL[4*1+2] ; //(sx*stpx)+(sz*stpz);
+      /*double s_dot_stp = mag_FL[4*material+0]*stpx +
+                         mag_FL[4*material+1]*stpy +
+                         mag_FL[4*material+2]*stpz ; //(sx*stpx)+(sz*stpz);
+                         */
+      double costheta = s_dot_stp; ///(sqrt(sx*sx+sy*sy+sz*sz)*sqrt(stpx*stpx+stpy*stpy+stpz*stpz));
+      //std::cout << " ****\tcos(t)\t" << costheta << "\tmaterial\t" << material << "\t" << mag_FL[4*material+0] << "\t" << mag_FL[4*material+1] << "\t" << mag_FL[4*material+2] << "\t" << mag_FL[4*material+3] << "\t" << mag_FL[4*material+4] << "\t" << stpx << "\t" << stpy << "\t" << stpz << std::endl;
+
+      /*double eta_AST = qpve_AST/(A_AST+B_AST*costheta) + qnve_AST/(A_AST-B_AST*costheta);
+      double eta_NAST = qpve_NAST/(A_NAST+B_NAST*costheta) + qnve_NAST/(A_NAST-B_NAST*costheta);*/
+      //std::cout << "costheta\t" << costheta << "\teta_AST\t" << eta_AST << "\teta_NAST\t" << eta_NAST << std::endl;
+
+      /*const double A_AST = 0.00242585;
+      const double B_AST = 1.45373e-06;
+      const double Q_AST = -0.996411; */
+      const double A_NAST           = 0.334089;
+      const double B_NAST           = 0.249671;
+      const double Q_NAST           = 0.225508;
+      /*const double A_NAST= 0.00282471;
+      const double B_NAST= 2.37513e-06;
+      const double Q_NAST= -0.994968; */
+      const double A_AST          = 0.0858184;
+      const double B_AST          = 0.0658484;
+      const double Q_AST          = 0.0466522;
+		double eta_AST  = Q_AST/(A_AST+B_AST*costheta)    + 1.0/(A_AST-B_AST*costheta);
+		double eta_NAST = Q_NAST/(A_NAST+B_NAST*costheta) + 1.0/(A_NAST-B_NAST*costheta);
+
+		double staj = slonczewski_aj[material];
+		double stbj = slonczewski_bj[material];
+      staj = eta_AST  * staj;
+      stbj = eta_NAST * stbj;
+
+      if(sim::time%50000 ==0 && material==2) std::cout << "costheta\t" << costheta << "\teta_AST\t" << eta_AST << "\teta_NAST\t" << eta_NAST << "\t" << staj << "\t" << stbj <<std::endl;
 
 		// calculate field
+      const std::vector<double> sxstp = {sy*stpz - sz*stpy,
+                                       sz*stpx - sx*stpz,
+                                       sx*stpy - sy*stpx};
+      const std::vector<double> sxsxstp = {(sy*sxstp[2] - sz*sxstp[1]),
+                                          (sz*sxstp[0] - sx*sxstp[2]),
+                                          (sx*sxstp[1] - sy*sxstp[0])};
+		/*hx += staj*sxsxstp[0] + stbj*sxstp[0];
+		hy += staj*sxsxstp[1] + stbj*sxstp[1];
+		hz += staj*sxsxstp[2] + stbj*sxstp[2]; */
 		hx += staj*(sy*stpz - sz*stpy) + stbj*stpx;
 		hy += staj*(sz*stpx - sx*stpz) + stbj*stpy;
 		hz += staj*(sx*stpy - sy*stpx) + stbj*stpz;
@@ -531,6 +582,8 @@ void calculate_full_spin_fields(const int start_index,const int end_index){
 		atoms::x_total_spin_field_array[atom]+=hx;
 		atoms::y_total_spin_field_array[atom]+=hy;
 		atoms::z_total_spin_field_array[atom]+=hz;
+
+      stats::calculate_torque=true;
 
 	}
 

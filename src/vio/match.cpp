@@ -166,13 +166,42 @@ namespace vin{
                     return EXIT_FAILURE;
                 }
             }
+
+				//-------------------------------------------------------------------
+				// Get spin configuration filename
+				//-------------------------------------------------------------------
+				test="initial-spin-configuration";
+				if(word==test){
+					std::string matfile=value;
+					// strip quotes
+					matfile.erase(remove(matfile.begin(), matfile.end(), '\"'), matfile.end());
+					test="";
+					if(matfile!=test){
+						//std::cout << matfile << std::endl;
+						cs::spin_config_file=matfile;
+						sim::read_spin_conf=true;
+	               terminaltextcolor(GREEN);
+						std::cout << "Spin configuration is going to be read from file: " << cs::spin_config_file <<"\n";
+						std::cout << "\tread_spin_conf is  " << sim::read_spin_conf << "\n"  ;
+	               terminaltextcolor(WHITE);
+						zlog << zTs() << "Spin configuration is going to be read from file: " << cs::spin_config_file << std::endl;
+						zlog << zTs() << "\tread_spin_conf is  " << sim::read_spin_conf << std::endl;
+						return EXIT_SUCCESS;
+					}
+					else{
+						terminaltextcolor(RED);
+						std::cerr << "Error - empty filename in control statement \'material:" << word << "\' on line " << line << " of input file" << std::endl;
+						terminaltextcolor(WHITE);
+						return EXIT_FAILURE;
+					}
+				}
         }
-        else
+        else{
             terminaltextcolor(RED);
             std::cerr << "Error - Unknown control statement \'" << key <<":"<< word << "\' on line " << line << " of input file" << std::endl;
             terminaltextcolor(WHITE);
             return EXIT_FAILURE;
-
+         }
     } // end of match function
 
     int match_create(string const word, string const value, string const unit, int const line){

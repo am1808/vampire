@@ -104,6 +104,26 @@ int set_atom_vars(std::vector<cs::catom_t> & catom_array, std::vector<std::vecto
    MTRand random_spin_rng;
    random_spin_rng.seed(vmpi::parallel_rng_seed(123456));
 
+	terminaltextcolor(GREEN);
+	std::cout << "Reading spin configuration from file: " << cs::spin_config_file <<"\n"  ;
+   std::cout<< "\tread_spin_conf is "<< sim::read_spin_conf <<"\n";
+	terminaltextcolor(WHITE);
+	zlog << zTs() << "Reading spin configuration from file: " << cs::spin_config_file <<"\n"  ;
+   zlog << zTs() << "\t\tread_spin_conf is "<< sim::read_spin_conf <<"\n";
+   std::ifstream spin_input;
+   std::ofstream spin_check;
+        if (sim::read_spin_conf) {
+           int dummy_nr_atoms;
+           spin_check.open("initial_spin_conf_check.cfg");
+           spin_check << atoms::num_atoms << std::endl;
+           spin_input.open (cs::spin_config_file.c_str());
+           spin_input >> dummy_nr_atoms;
+           if (dummy_nr_atoms != atoms::num_atoms) {
+             std::cout << " Error number of atoms in spin configuration file is not the same of simulation atoms";
+             return EXIT_FAILURE;
+           }
+        }
+
 	for(int atom=0;atom<atoms::num_atoms;atom++){
 
 		atoms::x_coord_array[atom] = catom_array[atom].x;
@@ -116,13 +136,16 @@ int set_atom_vars(std::vector<cs::catom_t> & catom_array, std::vector<std::vecto
 		atoms::grain_array[atom] = catom_array[atom].grain;
 
 		// initialise atomic spin positions
-      // Use a normalised gaussian for uniform distribution on a unit sphere
 		int mat=atoms::type_array[atom];
 		double sx,sy,sz; // spins
-		if(mp::material[mat].random_spins==true){
+      // Use a normalised gaussian for uniform distribution on a unit sphere
+		if(mp::material[mat].random_spins==true && !sim::read_spin_conf){
          sx=mtrandom::gaussianc(random_spin_rng);
          sy=mtrandom::gaussianc(random_spin_rng);
          sz=mtrandom::gaussianc(random_spin_rng);
+		}
+		else if (sim::read_spin_conf || (mp::material[mat].random_spins==false && sim::read_spin_conf)) {
+		spin_input >> sx >> sy >> sz;
 		}
 		else{
 			sx=mp::material[mat].initial_spin[0];
@@ -135,7 +158,18 @@ int set_atom_vars(std::vector<cs::catom_t> & catom_array, std::vector<std::vecto
 		atoms::y_spin_array[atom]=sy*modS;
 		atoms::z_spin_array[atom]=sz*modS;
       atoms::m_spin_array[atom]=mp::material[mat].mu_s_SI/9.27400915e-24;
+      if (sim::read_spin_conf) {
+         spin_check << atoms::type_array[atom] << "\t" << atoms::category_array[atom] << "\t";
+         spin_check << atoms::x_coord_array[atom] << "\t" << atoms::y_coord_array[atom] << "\t" << atoms::z_coord_array[atom] << "\t";
+         spin_check << atoms::x_spin_array[atom] << "\t" << atoms::y_spin_array[atom] << "\t" << atoms::z_spin_array[atom] << "\n";
+      }
 	}
+   if (sim::read_spin_conf){
+	   terminaltextcolor(GREEN);
+       std::cout << "Spin configuations read and written as check in: initial_spin_conf_check.cfg" << std::endl;
+	   terminaltextcolor(WHITE);
+       zlog << zTs() << "Spin configuations read and written as check in: initial_spin_conf_check.cfg" << std::endl;
+   }
 
    //---------------------------------------------------------------------------
    // Identify surface atoms and initialise anisotropy data

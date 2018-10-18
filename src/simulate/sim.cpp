@@ -164,6 +164,8 @@ namespace sim{
    bool save_checkpoint_continuous_flag=false; // save checkpoints during simulations
    int save_checkpoint_rate=1; // Default increment between checkpoints
 
+   bool read_spin_conf=false; /// flag to enable reading spin configuration from an input file
+
    // Local function declarations
    void integrate_serial(uint64_t);
    int integrate_mpi(uint64_t);

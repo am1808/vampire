@@ -135,8 +135,10 @@ namespace sim{
    extern bool save_checkpoint_continuous_flag; // save checkpoints during simulations
    extern int save_checkpoint_rate; // Default increment between checkpoints
 
-	// Initialization functions
-	extern void initialize(int num_materials);
+   extern bool read_spin_conf; // Load just spin configurations from a input file
+
+   // Initialization functions
+   extern void initialize(int num_materials);
 
 	// User interface functions
 	extern bool match_material_parameter(std::string const word, std::string const value, std::string const unit, int const line, int const super_index);

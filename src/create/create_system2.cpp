@@ -100,6 +100,8 @@ namespace cs{
 	bool fill_core_shell=true;
    bool core_shell_particles = false;
 
+   std::string spin_config_file="";
+
    // Variables for multilayer system
    bool multilayers = false;
    bool multilayer_height_category = false; // enable height categorization by multilayer number

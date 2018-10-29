@@ -495,6 +495,9 @@ void calculate_full_spin_fields(const int start_index,const int end_index){
 
 	using namespace sim::internal;
 
+   // Enable torque calculation
+   stats::calculate_torque=true;
+
    for(int atom=start_index;atom<end_index;atom++){
 
 		// temporary variables for field components
@@ -506,7 +509,6 @@ void calculate_full_spin_fields(const int start_index,const int end_index){
 		const double sx = atoms::x_spin_array[atom];
 		const double sy = atoms::y_spin_array[atom];
 		const double sz = atoms::z_spin_array[atom];
-      //const double mm = atoms::m_spin_array[atom];
 
 		// get material parameter
 		const int material=atoms::type_array[atom];
@@ -526,54 +528,67 @@ void calculate_full_spin_fields(const int start_index,const int end_index){
 
       // Angle between spin and current
       //double s_dot_stp = (sx*stpx)+(sy*stpy)+(sz*stpz);
-      //double s_dot_stp = (sx*stpx)+(sz*stpz);
-      //stats::material_magnetization.calculate_magnetization_slonc(atoms::x_spin_array,atoms::y_spin_array,atoms::z_spin_array,atoms::m_spin_array);
-      double s_dot_stp = mag_FL[4*material+0]*mag_FL[4*1+0] +
-                         mag_FL[4*material+1]*mag_FL[4*1+1] +
-                         mag_FL[4*material+2]*mag_FL[4*1+2] ; //(sx*stpx)+(sz*stpz);
-      /*double s_dot_stp = mag_FL[4*material+0]*stpx +
+      double s_dot_stp = mag_FL[4*material+0]*stpx +
                          mag_FL[4*material+1]*stpy +
-                         mag_FL[4*material+2]*stpz ; //(sx*stpx)+(sz*stpz);
-                         */
+                         mag_FL[4*material+2]*stpz ; //(sx*stpx)+(sz*stpz); */
       double costheta = s_dot_stp; ///(sqrt(sx*sx+sy*sy+sz*sz)*sqrt(stpx*stpx+stpy*stpy+stpz*stpz));
-      //std::cout << " ****\tcos(t)\t" << costheta << "\tmaterial\t" << material << "\t" << mag_FL[4*material+0] << "\t" << mag_FL[4*material+1] << "\t" << mag_FL[4*material+2] << "\t" << mag_FL[4*material+3] << "\t" << mag_FL[4*material+4] << "\t" << stpx << "\t" << stpy << "\t" << stpz << std::endl;
 
-      /*double eta_AST = qpve_AST/(A_AST+B_AST*costheta) + qnve_AST/(A_AST-B_AST*costheta);
-      double eta_NAST = qpve_NAST/(A_NAST+B_NAST*costheta) + qnve_NAST/(A_NAST-B_NAST*costheta);*/
-      //std::cout << "costheta\t" << costheta << "\teta_AST\t" << eta_AST << "\teta_NAST\t" << eta_NAST << std::endl;
+      const double Q_AST = -0.96701307293038      ;
+      const double B_AST = 0.000184395792918985   ;
+      const double A_AST = 0.0329886609480929     ;
+      const double Q_NAST = -0.975161578699664    ;
+      const double B_NAST = 0.000104119260200426  ;
+      const double A_NAST = 0.0248401733747441    ;
 
-      /*const double A_AST = 0.00242585;
-      const double B_AST = 1.45373e-06;
-      const double Q_AST = -0.996411; */
-      const double A_NAST           = 0.334089;
-      const double B_NAST           = 0.249671;
-      const double Q_NAST           = 0.225508;
-      /*const double A_NAST= 0.00282471;
-      const double B_NAST= 2.37513e-06;
-      const double Q_NAST= -0.994968; */
-      const double A_AST          = 0.0858184;
-      const double B_AST          = 0.0658484;
-      const double Q_AST          = 0.0466522;
 		double eta_AST  = Q_AST/(A_AST+B_AST*costheta)    + 1.0/(A_AST-B_AST*costheta);
 		double eta_NAST = Q_NAST/(A_NAST+B_NAST*costheta) + 1.0/(A_NAST-B_NAST*costheta);
 
-		double staj = slonczewski_aj[material];
-		double stbj = slonczewski_bj[material];
+      // Adding Simmon's equation
+      const int FL = 2; // interfacial atomic layer of Free Layer
+      double dot = mag_FL[4*FL+0]*stpx +
+                   mag_FL[4*FL+1]*stpy +
+                   mag_FL[4*FL+2]*stpz ;
+      double costheta_simm = dot; ///(sqrt(sx*sx+sy*sy+sz*sz)*sqrt(stpx*stpx+stpy*stpy+stpz*stpz));
+      //const double MgO_thickness = (mp::material[2].min - mp::material[1].max)*cs::system_dimensions[2]*1.0e-10;
+      const double MgO_thickness = 0.1*cs::system_dimensions[2]*1.0e-10;
+      const double tc = 0.25e-9;
+      const double beta_cond = 0.56;
+      const double beta_diff = 0.72;
+      double Jtun = 0.5*( (1.0 + costheta_simm) + 0.5*(1.0-costheta_simm)  )*exp(-1.0*MgO_thickness/tc);
+
+		double staj = slonczewski_aj[material]; //*0.75*beta_cond; // /(5.0e12/1.65e11);
+		double stbj = slonczewski_bj[material]; //*0.75*beta_cond; // /(5.0e12/1.65e11);
+      ////staj = eps_AST  * staj;
+      ////stbj = eps_NAST * stbj;
+      //staj = Jtun * staj;
+      //stbj = Jtun * stbj;
+      //staj = Jtun * eta_AST  * staj;
+      //stbj = Jtun * eta_NAST * stbj;
       staj = eta_AST  * staj;
       stbj = eta_NAST * stbj;
 
-      if(sim::time%50000 ==0 && material==2) std::cout << "costheta\t" << costheta << "\teta_AST\t" << eta_AST << "\teta_NAST\t" << eta_NAST << "\t" << staj << "\t" << stbj <<std::endl;
+      /*
+      // ----------------------------------------------- //
+      // Use different equation from
+      // Micromagnetic simulation of spin transfer torque switching combined with precessional motion from a hard axis magnetic field
+      // DOI:10.1063/1.2422879
+      // obtained from Slonczewski
+      // ---------------------------------------------- //
+      const double RL_Pol=0.56;
+      const double FL_Pol=0.56;
+      const double g_of_theta_num=4.0*FL_Pol*sqrt(RL_Pol);
+      const double g_of_theta_den=(1.0+FL_Pol)*(1.0+FL_Pol)*(1.0+RL_Pol)*(3.0+costheta)-16.0*FL_Pol*sqrt(RL_Pol);
+      const double g_of_theta = g_of_theta_num/g_of_theta_den;
+      staj = g_of_theta * slonczewski_aj[material];
+      stbj = g_of_theta * slonczewski_bj[material];
+      */
+
+      if(material==2 && (sim::time%(50000) ==0) ) {
+          //std::cout << "\tcostheta\t" << costheta <<"\t||s||\t"<<sqrt(sx*sx+sy*sy+sz*sz)<<"\t||stp||\t"<<sqrt(stpx*stpx+stpy*stpy+stpz*stpz) << "\tP_AST\t"<<P_AST<<"\tP_AST\t"<<P_NAST<<"\tL_AST\t"<<L_AST<<"\tL_NAST\t"<<L_NAST <<"\teps_AST\t"<<eps_AST<<"\teps_NAST\t"<<eps_NAST << "\tstaj\t"<< staj <<"\tstbj\t"<<stbj << std::endl;
+          std::cout << "\tcostheta\t" << costheta << "\ttheta\t" << std::acos(costheta)*180.0/M_PI << "\t||s||\t"<<sqrt(sx*sx+sy*sy+sz*sz)<<"\t||stp||\t"<<sqrt(stpx*stpx+stpy*stpy+stpz*stpz) << "\teta_AST\t"<<eta_AST<<"\teta_NAST\t"<<eta_NAST << "\tstaj\t"<< staj <<"\tstbj\t"<<stbj << "\tJtun\t" << Jtun <<std::endl;
+      }
 
 		// calculate field
-      const std::vector<double> sxstp = {sy*stpz - sz*stpy,
-                                       sz*stpx - sx*stpz,
-                                       sx*stpy - sy*stpx};
-      const std::vector<double> sxsxstp = {(sy*sxstp[2] - sz*sxstp[1]),
-                                          (sz*sxstp[0] - sx*sxstp[2]),
-                                          (sx*sxstp[1] - sy*sxstp[0])};
-		/*hx += staj*sxsxstp[0] + stbj*sxstp[0];
-		hy += staj*sxsxstp[1] + stbj*sxstp[1];
-		hz += staj*sxsxstp[2] + stbj*sxstp[2]; */
 		hx += staj*(sy*stpz - sz*stpy) + stbj*stpx;
 		hy += staj*(sz*stpx - sx*stpz) + stbj*stpy;
 		hz += staj*(sx*stpy - sy*stpx) + stbj*stpz;
@@ -582,8 +597,6 @@ void calculate_full_spin_fields(const int start_index,const int end_index){
 		atoms::x_total_spin_field_array[atom]+=hx;
 		atoms::y_total_spin_field_array[atom]+=hy;
 		atoms::z_total_spin_field_array[atom]+=hz;
-
-      stats::calculate_torque=true;
 
 	}
 

@@ -24,14 +24,17 @@ namespace sim{
       // unroll slonczewski torque arrays
       sim::internal::slonczewski_aj.resize(num_materials,0.0);
       sim::internal::slonczewski_bj.resize(num_materials,0.0);
+      // unroll spin orbit torque arrays
+      sim::internal::spin_hall_angle.resize(num_materials,0.0);
       // loop over materials set by user
       for(unsigned int m=0; m<sim::internal::mp.size(); ++m){
          // copy values set by user to arrays
          if(sim::internal::mp[m].slonczewski_aj.is_set()) sim::internal::slonczewski_aj[m] = sim::internal::mp[m].slonczewski_aj.get();
          if(sim::internal::mp[m].slonczewski_bj.is_set()) sim::internal::slonczewski_bj[m] = sim::internal::mp[m].slonczewski_bj.get();
+         if(sim::internal::mp[m].spin_hall_angle.is_set()) sim::internal::spin_hall_angle[m] = sim::internal::mp[m].spin_hall_angle.get();
       }
 
       return;
    }
 
-} // end of namespace gpu
+} // end of namespace sim

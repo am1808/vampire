@@ -148,6 +148,7 @@ int init(){
 		unit[42]="zs";			conversion[42]=1.0E-21;				type[42]="time"; // zeptoseconds
       // New
       unit[43]="zJ";			conversion[43]=1.0E-21; 			type[43]="energy";		// zeptoJoules
+      // Current
 
       // temperature C, F, K; angles degrees, rad, mrad;
 		// Set initialised flag

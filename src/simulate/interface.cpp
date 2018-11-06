@@ -46,6 +46,63 @@ namespace sim{
          sim::internal::slonczewski_spin_polarization_unit_vector = u;
          return true;
       }
+      //-------------------------------------------------------------------
+      test="spin-orbit-torque-polarization-unit-vector";
+      if(word==test){
+         std::vector<double> u(3);
+         u=vin::doubles_from_string(value);
+         // Test for valid range
+         vin::check_for_valid_unit_vector(u, word, line, prefix, "input");
+         // save sanitized unit vector
+         sim::internal::spin_orbit_torque_polarization_unit_vector = u;
+         return true;
+      }
+      //-------------------------------------------------------------------
+      test="spin-orbit-torque-polarization-magnitude";
+      if(word==test){
+         double je = atof(value.c_str());
+         // Test for valid range
+         vin::check_for_valid_value(je, word, line, prefix, unit, "", -1.0e18, 1.0e18,"input","-1e18 - 1e18");
+         sim::internal::spin_orbit_torque_polarization_magnitude = je;
+         return true;
+      }
+      //-------------------------------------------------------------------
+      test="spin-orbit-torque-pulse-duration";
+      if(word==test){
+         double dt = atof(value.c_str());
+         vin::check_for_valid_value(dt, word, line, prefix, unit, "time", 1.0e-20, 1.0e-3,"input","0.01 attosecond - 1 microsecond");
+         sim::internal::spin_orbit_torque_pulse_duration = dt;
+         return true;
+      }
+      //-------------------------------------------------------------------
+      test="spin-orbit-torque-applied-field-strength";
+      if(word==test){
+         double H = atof(value.c_str());
+         // Test for valid range
+         vin::check_for_valid_value(H, word, line, prefix, unit, "field", -1.e4, 1.0e4,"input","+/- 10,000 T");
+         sim::internal::spin_orbit_torque_H_applied=H;
+         return true;
+      }
+      //-------------------------------------------------------------------
+      test="spin-orbit-torque-applied-field-unit-vector";
+      if(word==test){
+         std::vector<double> u(3);
+         u=vin::doubles_from_string(value);
+         // Test for valid range
+         vin::check_for_valid_unit_vector(u, word, line, prefix, "input");
+         // save sanitized unit vector
+         sim::internal::spin_orbit_torque_H_applied_unit_vector = u;
+         return true;
+      }
+      //-------------------------------------------------------------------
+      test="applied-field-pulse-duration";
+      if(word==test){
+         double dt = atof(value.c_str());
+         vin::check_for_valid_value(dt, word, line, prefix, unit, "time", 1.0e-20, 1.0e-3,"input","0.01 attosecond - 1 microsecond");
+         sim::applied_field_pulse_duration = dt;
+         return true;
+      }
+      //-------------------------------------------------------------------
       test="preconditioning-steps";
       if(word==test){
          int n = atoi(value.c_str());
@@ -132,6 +189,18 @@ namespace sim{
          // Test for valid range
          vin::check_for_valid_value(bj, word, line, prefix, unit, "field", 0.0, 1.0e2,"input","0 - 100T");
          sim::internal::mp[super_index].slonczewski_bj.set(bj);
+         return true;
+      }
+      //------------------------------------------------------------
+      test="spin-hall-angle";
+      /*
+         Spin Hall angle
+         */
+      if(word==test){
+         double th_SH=atof(value.c_str());
+         // Test for valid range
+         vin::check_for_valid_value(th_SH, word, line, prefix, unit, "", -1.0e18, 1.0e18,"input","-1e18 - 1e18");
+         sim::internal::mp[super_index].spin_hall_angle.set(th_SH);
          return true;
       }
       //--------------------------------------------------------------------

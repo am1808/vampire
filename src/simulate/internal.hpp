@@ -16,6 +16,9 @@
 //---------------------------------------------------------------------
 
 namespace sim{
+
+   extern double applied_field_pulse_duration; // Squared field pulse
+
    namespace internal{
 
       //-----------------------------------------------------------------------------
@@ -49,12 +52,19 @@ namespace sim{
       struct mp_t{
          set_double_t slonczewski_aj; // adiabatic torque
          set_double_t slonczewski_bj; // field torque (non-adiabatic)
+         set_double_t spin_hall_angle; // Spin Hall angle
       };
 
       extern std::vector<sim::internal::mp_t> mp; // array of material properties
       extern std::vector<double> slonczewski_aj; // array of adiabatic spin torques
       extern std::vector<double> slonczewski_bj; // array of non-adiabatic spin torques
+      extern std::vector<double> spin_hall_angle; // Array of spin Hall angles
       extern std::vector<double> slonczewski_spin_polarization_unit_vector; // spin polarization direction
+      extern std::vector<double> spin_orbit_torque_polarization_unit_vector; // SOT current polarization direction
+      extern std::vector<double> spin_orbit_torque_H_applied_unit_vector;   // SOT applied field direction
+      extern double spin_orbit_torque_polarization_magnitude; // magnitude of injected current for SOT
+      extern double spin_orbit_torque_pulse_duration; // pulse duration of SOT
+      extern double spin_orbit_torque_H_applied; //Applied field strenght for SOT
 
       extern int num_monte_carlo_preconditioning_steps;
 

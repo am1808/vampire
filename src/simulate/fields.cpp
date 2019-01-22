@@ -187,8 +187,8 @@ int calculate_applied_fields(const int start_index,const int end_index){
 	// Declare array for local (material specific) applied field
 	std::vector<double> Hlocal(0);
 
-   // Add external field only within pulse
-   if(sim::time*mp::dt_SI < sim::applied_field_pulse_duration){
+   // // Add external field only within pulse
+   // if(sim::time*mp::dt_SI < sim::applied_field_pulse_duration){
 	// Check for local applied field
 		if(sim::local_applied_field==true){
 			Hlocal.reserve(3*mp::material.size());
@@ -216,7 +216,7 @@ int calculate_applied_fields(const int start_index,const int end_index){
 				atoms::z_total_external_field_array[atom] += Hz;
 			}
 		}
-   } // End check if time < pulse_time
+   //} // End check if time < pulse_time
 
 	// Add external field from thin film sample
 	if(sim::ext_demag==true){
@@ -559,30 +559,28 @@ void calculate_full_spin_fields(const int start_index,const int end_index){
 		//----------------------------------------------------------------------------------
 		// Spin Orbit Torque field
 		//----------------------------------------------------------------------------------
+
       // Calculate SOT contribution only during current pulse
-      if(sim::time*mp::dt_SI<spin_orbit_torque_pulse_duration){
+      //while(sim::time*mp::dt_SI<spin_orbit_torque_pulse_duration){
 
 			// spin polarisation components
 			double sigmax = 0.0;
 			double sigmay = 0.0;
 			double sigmaz = 0.0;
 
-			// save polarization to temporary constant
-			const double sotpx = spin_orbit_torque_polarization_unit_vector[0];
-			const double sotpy = spin_orbit_torque_polarization_unit_vector[1];
-			const double sotpz = spin_orbit_torque_polarization_unit_vector[2];
+			// save direction of electric field (~ rho je) to temporary constant
+			const double Efieldx = spin_orbit_torque_polarization_unit_vector[0];
+			const double Efieldy = spin_orbit_torque_polarization_unit_vector[1];
+			const double Efieldz = spin_orbit_torque_polarization_unit_vector[2];
 
-			// const double sotpx = electric_field_unit_vector[0];
-			// const double sotpy = electric_field_unit_vector[1];
-			// const double sotpz = electric_field_unit_vector[2];
-			const double Efieldx = 0.0;
-			const double Efieldy = 0.0;
-			const double Efieldz = 1.0;
+			const double normal_to_surfacex = 0.0;
+			const double normal_to_surfacey = 0.0;
+			const double normal_to_surfacez = 1.0;
 
 			// calculate spin polarisation sigma: Efield x Je
-			sigmax = (Efieldy*sotpz - Efieldz*sotpy);
-			sigmay = (Efieldz*sotpx - Efieldx*sotpz);
-			sigmaz = (Efieldx*sotpy - Efieldy*sotpx);
+			sigmax = (normal_to_surfacey*Efieldz - normal_to_surfacez*Efieldy);
+			sigmay = (normal_to_surfacez*Efieldx - normal_to_surfacex*Efieldz);
+			sigmaz = (normal_to_surfacex*Efieldy - normal_to_surfacey*Efieldx);
 
          const double i_thickness_FM = (1.0/thickness)/1.0e-10; //1.0/1.3e-9;
          //const double atomic_volume = 2.86e-10 * 2.86e-10 * 2.86e-10 * 0.5;
@@ -592,35 +590,23 @@ void calculate_full_spin_fields(const int start_index,const int end_index){
          const double n_at = 4.0;
          const double atomic_volume = (dx*dy*dz/n_at)*1.0e-30; // 1.1195793152e-31;
 			const double th_SH = spin_hall_angle[material];
-			const double Coeff_SH = th_SH * 0.5 * hbar*i_e*i_mus * spin_orbit_torque_polarization_magnitude * atomic_volume * i_thickness_FM;
-
-         if(material>=0 && (sim::time%(1000000000) ==0) ) {
-            std::cout << "\tmat\t" << material;
-            std::cout << "\tt\t" << thickness;
-            std::cout << "\tdx dy dz\t" << dx << "\t" << dy << "\t" <<  dz;
-            // std::cout << "\tVat\t" << atomic_volume;
-            std::cout << "\tmus\t" << mus*i_muB;
-            // std::cout << "\tMs\t" << 1.0/(atomic_volume * i_mus);
-            // std::cout << "\tsx\t" << sx << "\tsy\t" << sy << "\tsz\t" << sz;
-            std::cout << "\tpx\t" << sotpx << "\tpy\t" << sotpy << "\tpz\t" << sotpz;
-            std::cout << "\tspx\t" << sigmax << "\tspy\t" << sigmay << "\tspz\t" << sigmaz;
-            std::cout << "\tCSH\t" << Coeff_SH;
-            // std::cout << "\ttADx\t" << sy*sigmaz - sz*sigmay << "\ttADy\t" << sz*sigmax - sx*sigmaz << "\ttADz\t" << sx*sigmay - sy*sigmax;
-            // std::cout << "\ttFLx\t" << damping*sigmax << "\ttFLy\t" << damping*sigmay << "\ttFLz\t" << damping*sigmaz;
-            std::cout << std::endl;
-         }
+         const double pref_DL = prefactor_DL[material];
+         const double pref_FL = prefactor_FL[material];
+			// const double Coeff_SH = th_SH * 0.5 * hbar*i_e*i_mus * spin_orbit_torque_polarization_magnitude * atomic_volume * i_thickness_FM;
+			const double A_DL_SH = th_SH * 0.5 * hbar*i_e*i_mus * spin_orbit_torque_polarization_magnitude * atomic_volume * i_thickness_FM * pref_DL;
+			const double A_FL_SH = th_SH * 0.5 * hbar*i_e*i_mus * spin_orbit_torque_polarization_magnitude * atomic_volume * i_thickness_FM * pref_FL;
 
 			// // calculate field
 			// hsotx += -1.0*Coeff_SH*(sy*sigmaz - sz*sigmay) + Coeff_SH*sigmax; //damping*
 			// hsoty += -1.0*Coeff_SH*(sz*sigmax - sx*sigmaz) + Coeff_SH*sigmay; //damping*
 			// hsotz += -1.0*Coeff_SH*(sx*sigmay - sy*sigmax) + Coeff_SH*sigmaz; //damping*
-         //--------------------------------------------------------------------------------------------------------
-         // calculate field with derivation of LLG starting with both torque terms already in LL sarting with
-         // -gamma * C_SH * s x (sigma x s) - gamma * C_SH * (s x sigma)
-         //--------------------------------------------------------------------------------------------------------
-			hsotx += (damping-1.0)*Coeff_SH*(sy*sigmaz - sz*sigmay) + (damping+1.0)*Coeff_SH*sigmax;
-			hsoty += (damping-1.0)*Coeff_SH*(sz*sigmax - sx*sigmaz) + (damping+1.0)*Coeff_SH*sigmay;
-			hsotz += (damping-1.0)*Coeff_SH*(sx*sigmay - sy*sigmax) + (damping+1.0)*Coeff_SH*sigmaz;
+         // //--------------------------------------------------------------------------------------------------------
+         // // calculate field with derivation of LLG starting with both torque terms already in LL sarting with
+         // // -gamma * C_SH * s x (sigma x s) - gamma * C_SH * (s x sigma)
+         // //--------------------------------------------------------------------------------------------------------
+			// hsotx += (damping-1.0)*Coeff_SH*(sy*sigmaz - sz*sigmay) + (damping+1.0)*Coeff_SH*sigmax;
+			// hsoty += (damping-1.0)*Coeff_SH*(sz*sigmax - sx*sigmaz) + (damping+1.0)*Coeff_SH*sigmay;
+			// hsotz += (damping-1.0)*Coeff_SH*(sx*sigmay - sy*sigmax) + (damping+1.0)*Coeff_SH*sigmaz;
          // //--------------------------------------------------------------------------------------------------------
          // // calculate field with derivation of LLG starting with both torque terms already in LL sarting with
          // // -gamma * C_SH * s x (s x sigma) - gamma * C_SH * (s x sigma)
@@ -628,13 +614,36 @@ void calculate_full_spin_fields(const int start_index,const int end_index){
 			// hsotx += (1.0+damping)*Coeff_SH*(sy*sigmaz - sz*sigmay) + (1.0-damping)*Coeff_SH*sigmax;
 			// hsoty += (1.0+damping)*Coeff_SH*(sz*sigmax - sx*sigmaz) + (1.0-damping)*Coeff_SH*sigmay;
 			// hsotz += (1.0+damping)*Coeff_SH*(sx*sigmay - sy*sigmax) + (1.0-damping)*Coeff_SH*sigmaz;
+         //--------------------------------------------------------------------------------------------------------
+         // calculate field with derivation of LLG starting with both torque terms already in LLG sarting with
+         // -gamma * A_DL_SH * s x (sigma x s) - gamma * A_FL_SH * (s x sigma)
+         //--------------------------------------------------------------------------------------------------------
+			hsotx += (A_DL_SH+1.0*damping*A_FL_SH)*(sy*sigmaz - sz*sigmay) + (A_FL_SH-1.0*damping*A_DL_SH)*sigmax;
+			hsoty += (A_DL_SH+1.0*damping*A_FL_SH)*(sz*sigmax - sx*sigmaz) + (A_FL_SH-1.0*damping*A_DL_SH)*sigmay;
+			hsotz += (A_DL_SH+1.0*damping*A_FL_SH)*(sx*sigmay - sy*sigmax) + (A_FL_SH-1.0*damping*A_DL_SH)*sigmaz;
+
+         /*if(material==1 && (sim::time%(1000000000) ==0) ) {
+            std::cout << "mat\t" << material;
+            //std::cout << "\tt\t" << thickness;
+            //std::cout << "\tdx dy dz\t" << dx << "\t" << dy << "\t" <<  dz;
+            // std::cout << "\tVat\t" << atomic_volume;
+            //std::cout << "\tmus\t" << mus*i_muB;
+            // std::cout << "\tMs\t" << 1.0/(atomic_volume * i_mus);
+            // std::cout << "\tsx\t" << sx << "\tsy\t" << sy << "\tsz\t" << sz;
+            std::cout << "\tsigx\t" << sigmax << "\tsigy\t" << sigmay << "\tsigz\t" << sigmaz;
+            //std::cout << "\tprefDL\t" << pref_DL << "\tprefFL\t" << pref_FL;
+            std::cout << "\tADL\t" << A_DL_SH << "\tAFL\t"  << A_FL_SH;
+            std::cout << "\ttDLx\t" << sy*sigmaz - sz*sigmay << "\ttDLy\t" << sz*sigmax - sx*sigmaz << "\ttDLz\t" << sx*sigmay - sy*sigmax;
+            std::cout << "\ttFLx\t" << sigmax << "\ttFLy\t" << sigmay << "\ttFLz\t" << sigmaz;
+            std::cout << std::endl;
+         }*/
 
 			// save field to spin field array
 			atoms::x_total_spin_field_array[atom]+=hsotx;
 			atoms::y_total_spin_field_array[atom]+=hsoty;
 			atoms::z_total_spin_field_array[atom]+=hsotz;
 
-      }// End if time<pulse_time
+      //}// End if time<pulse_time
 
 	}
 

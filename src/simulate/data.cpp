@@ -38,6 +38,8 @@ namespace sim{
       std::vector<double> slonczewski_aj; // array of adiabatic spin torques
       std::vector<double> slonczewski_bj; // array of non-adiabatic spin torques
       std::vector<double> spin_hall_angle; // array of spin Hall angles
+      std::vector<double> prefactor_DL;   // Array of sot damping-like prefactors
+      std::vector<double> prefactor_FL;   // Array of sot field-like prefactors
       std::vector<double> slonczewski_spin_polarization_unit_vector(3,0.0); // spin polarization direction
       std::vector<double> spin_orbit_torque_polarization_unit_vector(3,0.0); // SOT current polarization direction
       std::vector<double> spin_orbit_torque_H_applied_unit_vector(3,0.0); // SOT applied field direction

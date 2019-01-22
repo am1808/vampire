@@ -53,12 +53,16 @@ namespace sim{
          set_double_t slonczewski_aj; // adiabatic torque
          set_double_t slonczewski_bj; // field torque (non-adiabatic)
          set_double_t spin_hall_angle; // Spin Hall angle
+         set_double_t prefactor_DL;    // prefactor for amplitude of damping-like SOT
+         set_double_t prefactor_FL;    // prefactor for amplitude of field-like SOT
       };
 
       extern std::vector<sim::internal::mp_t> mp; // array of material properties
       extern std::vector<double> slonczewski_aj; // array of adiabatic spin torques
       extern std::vector<double> slonczewski_bj; // array of non-adiabatic spin torques
       extern std::vector<double> spin_hall_angle; // Array of spin Hall angles
+      extern std::vector<double> prefactor_DL;   // Array of sot damping-like prefactors
+      extern std::vector<double> prefactor_FL;   // Array of sot field-like prefactors
       extern std::vector<double> slonczewski_spin_polarization_unit_vector; // spin polarization direction
       extern std::vector<double> spin_orbit_torque_polarization_unit_vector; // SOT current polarization direction
       extern std::vector<double> spin_orbit_torque_H_applied_unit_vector;   // SOT applied field direction

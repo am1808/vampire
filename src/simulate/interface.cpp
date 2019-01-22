@@ -203,6 +203,30 @@ namespace sim{
          sim::internal::mp[super_index].spin_hall_angle.set(th_SH);
          return true;
       }
+      //------------------------------------------------------------
+      test="damping-like-sot-prefactor";
+      /*
+         prefactor do determine relative amplitude of damping-like torque
+         */
+      if(word==test){
+         double prefactor=atof(value.c_str());
+         // Test for valid range
+         vin::check_for_valid_value(prefactor, word, line, prefix, unit, "", -1.0e18, 1.0e18,"input","-1e18 - 1e18");
+         sim::internal::mp[super_index].prefactor_DL.set(prefactor);
+         return true;
+      }
+      //------------------------------------------------------------
+      test="field-like-sot-prefactor";
+      /*
+         prefactor do determine relative amplitude of field-like torque
+         */
+      if(word==test){
+         double prefactor=atof(value.c_str());
+         // Test for valid range
+         vin::check_for_valid_value(prefactor, word, line, prefix, unit, "", -1.0e18, 1.0e18,"input","-1e18 - 1e18");
+         sim::internal::mp[super_index].prefactor_FL.set(prefactor);
+         return true;
+      }
       //--------------------------------------------------------------------
       // keyword not found
       //--------------------------------------------------------------------

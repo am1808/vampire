@@ -187,6 +187,9 @@ namespace sim{
    extern double mc_statistics_moves;
    extern double mc_statistics_reject;
 
+   // Store number of atoms in unit cell -- useful for spin orbit torque calculations etc..
+   extern double num_atoms_in_unit_cell;
+
 }
 
 namespace cmc{

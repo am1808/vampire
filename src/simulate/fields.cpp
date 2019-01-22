@@ -587,7 +587,7 @@ void calculate_full_spin_fields(const int start_index,const int end_index){
          const double dx=cs::unit_cell.dimensions[0]; //0.5;
          const double dy=cs::unit_cell.dimensions[1]; //1.09696;
          const double dz=cs::unit_cell.dimensions[2]; //0.816496;
-         const double n_at = 4.0;
+         const double n_at = sim::num_atoms_in_unit_cell; // 4.0;
          const double atomic_volume = (dx*dy*dz/n_at)*1.0e-30; // 1.1195793152e-31;
 			const double th_SH = spin_hall_angle[material];
          const double pref_DL = prefactor_DL[material];

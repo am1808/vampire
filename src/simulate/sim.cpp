@@ -172,6 +172,9 @@ namespace sim{
    double mc_statistics_moves = 0.0;
    double mc_statistics_reject = 0.0;
 
+   // Store number of atoms in unit cell -- useful for spin orbit torque calculations etc..
+   double num_atoms_in_unit_cell = 0.0;
+
 /// @brief Function to increment time counter and associted variables
 ///
 /// @section License

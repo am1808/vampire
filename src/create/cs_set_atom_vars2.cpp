@@ -159,6 +159,7 @@ int set_atom_vars(std::vector<cs::catom_t> & catom_array, std::vector<std::vecto
 
    // Save number of atoms in unit cell first
    cells::num_atoms_in_unit_cell=unit_cell.atom.size();
+   sim::num_atoms_in_unit_cell=unit_cell.atom.size();
    //std::cout << "\t\t" << unit_cell.atom.size() << "\t" << cells::num_atoms_in_unit_cell << std::endl;
    unit_cell.atom.resize(0);
 

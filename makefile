@@ -43,8 +43,8 @@ PCC_DBLFLAGS= -O0 -I./hdr -I./src/qvoronoi
 IBM_DBCFLAGS= -O0 -Wall -pedantic -Wextra -I./hdr -I./src/qvoronoi
 IBM_DBLFLAGS= -O0 -Wall -pedantic -Wextra -I./hdr -I./src/qvoronoi
 
-LLVM_DBCFLAGS= -Wall -Wextra -O0 -pedantic -std=c++11 -Wno-long-long -I./hdr -I./src/qvoronoi
-LLVM_DBLFLAGS= -Wall -Wextra -O0 -lstdc++ -I./hdr -I./src/qvoronoi
+LLVM_DBCFLAGS= -g -pg -Wall -Wextra -O0 -pedantic -std=c++0x -Wno-long-long -I./hdr -I./src/qvoronoi
+LLVM_DBLFLAGS= -g -pg -Wall -Wextra -O0 -lstdc++ -std=c++0x -fbounds-check -I./hdr -I./src/qvoronoi
 
 # Performance Flags
 ICC_CFLAGS= -O3 -axSSE3 -fno-alias -align -falign-functions -I./hdr -I./src/qvoronoi
@@ -197,7 +197,7 @@ $(ICC_OBJECTS): obj/%_i.o: src/%.cpp
 	$(ICC) -c -o $@ $(ICC_CFLAGS) $(OPTIONS) $<
 
 serial-llvm: $(LLVM_OBJECTS)
-	$(LLVM) $(LLVM_LDFLAGS) $(LIBS) $(LLVM_OBJECTS) -o $(EXECUTABLE)
+	$(LLVM) $(LLVM_LDFLAGS) $(LIBS) $(LLVM_OBJECTS) -o $(EXECUTABLE)-llvm
 
 $(LLVM_OBJECTS): obj/%_llvm.o: src/%.cpp
 	$(LLVM) -c -o $@ $(LLVM_CFLAGS) $(OPTIONS) $<
@@ -215,7 +215,7 @@ $(GCCDB_OBJECTS): obj/%_gdb.o: src/%.cpp
 	$(GCC) -c -o $@ $(GCC_DBCFLAGS) $(OPTIONS) $<
 
 serial-llvm-debug: $(LLVMDB_OBJECTS)
-	$(LLVM) $(LLVM_DBLFLAGS) $(LIBS) $(LLVMDB_OBJECTS) -o $(EXECUTABLE)
+	$(LLVM) $(LLVM_DBLFLAGS) $(LIBS) $(LLVMDB_OBJECTS) -o $(EXECUTABLE)-llvm-debug
 
 $(LLVMDB_OBJECTS): obj/%_llvmdb.o: src/%.cpp
 	$(LLVM) -c -o $@ $(LLVM_DBCFLAGS) $(OPTIONS) $<

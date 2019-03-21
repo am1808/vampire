@@ -112,6 +112,33 @@ int calculate_spin_fields(const int start_index,const int end_index){
 
 	calculate_full_spin_fields(start_index,end_index);
 
+   /*// Print out values of spin fields per atom
+   if(sim::time%(100000) ==0){
+   for (int atom = start_index; atom<end_index; atom++){
+      const double sx = atoms::x_spin_array[atom];
+      const double sy = atoms::y_spin_array[atom];
+      const double sz = atoms::z_spin_array[atom];
+      const double Hx = atoms::x_total_spin_field_array[atom];
+      const double Hy = atoms::y_total_spin_field_array[atom];
+      const double Hz = atoms::z_total_spin_field_array[atom];
+      const double Tx = (sy*Hz - sz*Hy);
+      const double Ty = (sz*Hx - sx*Hz);
+      const double Tz = (sx*Hy - sy*Hx);
+      std::cout << "i\t" << atom;
+      std::cout << "\tsx\t" << sx;
+      std::cout << "\tsy\t" << sy;
+      std::cout << "\tsz\t" << sz;
+	   std::cout << "\tHx\t" << Hx;
+	   std::cout << "\tHy\t" << Hy;
+	   std::cout << "\tHz\t" << Hz;
+	   std::cout << "\tTx\t" << Tx;
+	   std::cout << "\tTy\t" << Ty;
+	   std::cout << "\tTz\t" << Tz;
+      std::cout << std::endl;
+   }
+   std::cout << std::endl;
+   }*/
+
 	return 0;
 }
 
@@ -497,9 +524,6 @@ void calculate_full_spin_fields(const int start_index,const int end_index){
 
 	using namespace sim::internal;
 
-   // Enable torque calculation
-   stats::calculate_torque=true;
-
    for(int atom=start_index;atom<end_index;atom++){
 
 		// temporary variables for field components
@@ -596,6 +620,13 @@ void calculate_full_spin_fields(const int start_index,const int end_index){
 			const double A_DL_SH = th_SH * 0.5 * hbar*i_e*i_mus * spin_orbit_torque_polarization_magnitude * atomic_volume * i_thickness_FM * pref_DL;
 			const double A_FL_SH = th_SH * 0.5 * hbar*i_e*i_mus * spin_orbit_torque_polarization_magnitude * atomic_volume * i_thickness_FM * pref_FL;
 
+         //--------------------------------------------------------------------------------------------------------
+         // calculate field with derivation of LLG starting with both torque terms already in LLG sarting with
+         // -gamma * A_DL_SH * s x (sigma x s) - gamma * A_FL_SH * (s x sigma)
+         //--------------------------------------------------------------------------------------------------------
+			hsotx += (A_DL_SH+1.0*damping*A_FL_SH)*(sy*sigmaz - sz*sigmay) + (A_FL_SH-1.0*damping*A_DL_SH)*sigmax;
+			hsoty += (A_DL_SH+1.0*damping*A_FL_SH)*(sz*sigmax - sx*sigmaz) + (A_FL_SH-1.0*damping*A_DL_SH)*sigmay;
+			hsotz += (A_DL_SH+1.0*damping*A_FL_SH)*(sx*sigmay - sy*sigmax) + (A_FL_SH-1.0*damping*A_DL_SH)*sigmaz;
 			// // calculate field
 			// hsotx += -1.0*Coeff_SH*(sy*sigmaz - sz*sigmay) + Coeff_SH*sigmax; //damping*
 			// hsoty += -1.0*Coeff_SH*(sz*sigmax - sx*sigmaz) + Coeff_SH*sigmay; //damping*
@@ -614,16 +645,10 @@ void calculate_full_spin_fields(const int start_index,const int end_index){
 			// hsotx += (1.0+damping)*Coeff_SH*(sy*sigmaz - sz*sigmay) + (1.0-damping)*Coeff_SH*sigmax;
 			// hsoty += (1.0+damping)*Coeff_SH*(sz*sigmax - sx*sigmaz) + (1.0-damping)*Coeff_SH*sigmay;
 			// hsotz += (1.0+damping)*Coeff_SH*(sx*sigmay - sy*sigmax) + (1.0-damping)*Coeff_SH*sigmaz;
-         //--------------------------------------------------------------------------------------------------------
-         // calculate field with derivation of LLG starting with both torque terms already in LLG sarting with
-         // -gamma * A_DL_SH * s x (sigma x s) - gamma * A_FL_SH * (s x sigma)
-         //--------------------------------------------------------------------------------------------------------
-			hsotx += (A_DL_SH+1.0*damping*A_FL_SH)*(sy*sigmaz - sz*sigmay) + (A_FL_SH-1.0*damping*A_DL_SH)*sigmax;
-			hsoty += (A_DL_SH+1.0*damping*A_FL_SH)*(sz*sigmax - sx*sigmaz) + (A_FL_SH-1.0*damping*A_DL_SH)*sigmay;
-			hsotz += (A_DL_SH+1.0*damping*A_FL_SH)*(sx*sigmay - sy*sigmax) + (A_FL_SH-1.0*damping*A_DL_SH)*sigmaz;
 
-         /*if(material==1 && (sim::time%(1000000000) ==0) ) {
-            std::cout << "mat\t" << material;
+         /*if(material==0 && (sim::time%(1000000000) ==0) ) {
+            std::cout << "atom\t" << atom;
+            // std::cout << "\tmat\t" << material;
             //std::cout << "\tt\t" << thickness;
             //std::cout << "\tdx dy dz\t" << dx << "\t" << dy << "\t" <<  dz;
             // std::cout << "\tVat\t" << atomic_volume;
@@ -633,8 +658,12 @@ void calculate_full_spin_fields(const int start_index,const int end_index){
             std::cout << "\tsigx\t" << sigmax << "\tsigy\t" << sigmay << "\tsigz\t" << sigmaz;
             //std::cout << "\tprefDL\t" << pref_DL << "\tprefFL\t" << pref_FL;
             std::cout << "\tADL\t" << A_DL_SH << "\tAFL\t"  << A_FL_SH;
-            std::cout << "\ttDLx\t" << sy*sigmaz - sz*sigmay << "\ttDLy\t" << sz*sigmax - sx*sigmaz << "\ttDLz\t" << sx*sigmay - sy*sigmax;
-            std::cout << "\ttFLx\t" << sigmax << "\ttFLy\t" << sigmay << "\ttFLz\t" << sigmaz;
+            std::cout << "\ttDLx\t" << (A_DL_SH+1.0*damping*A_FL_SH)*(sy*sigmaz - sz*sigmay);
+            std::cout << "\ttDLy\t" << (A_DL_SH+1.0*damping*A_FL_SH)*(sz*sigmax - sx*sigmaz);
+            std::cout << "\ttDLz\t" << (A_DL_SH+1.0*damping*A_FL_SH)*(sx*sigmay - sy*sigmax);
+            std::cout << "\ttFLx\t" << (A_FL_SH-1.0*damping*A_DL_SH)*sigmax;
+            std::cout << "\ttFLy\t" << (A_FL_SH-1.0*damping*A_DL_SH)*sigmay;
+            std::cout << "\ttFLz\t" << (A_FL_SH-1.0*damping*A_DL_SH)*sigmaz;
             std::cout << std::endl;
          }*/
 

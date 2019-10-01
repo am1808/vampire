@@ -23,11 +23,11 @@ int main(int argc, char* argv[]){
    long int min_file_id = 0;        //index of initial file to process
    long int max_file_id = 99999999; //index of final file to process
    // If only one value is specified, then only the minimum is changed
-   if(argc>0 && argc<2){
+   if(argc>0 && argc<3){
       min_file_id = atoi(argv[1]);
    }
    // If two values are given, both maximum and minimum file indexes are updated
-   else if(argc>0 && argc<3){
+   else if(argc>0 && argc<4){
       min_file_id = atoi(argv[1]);
       max_file_id = atoi(argv[2])+1;
    }

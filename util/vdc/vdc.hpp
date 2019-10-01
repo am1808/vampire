@@ -75,7 +75,7 @@ namespace vdc{
 
    // Functions
    void process_coordinates();
-   void process_spins();
+   void process_spins(const long int min_file_id, const long int max_file_id);
 
    // forward function declarations
    void read_nm_metadata();

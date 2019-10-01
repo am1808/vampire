@@ -85,4 +85,11 @@ cfg2rasmol
 log.*
 run/unit-cell-creator
 
+#----------------------------------------------
+# Eclipse IDE project files and folders
+#----------------------------------------------
+.cproject
+.project
+.settings/
+
 #EOF

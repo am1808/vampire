@@ -104,9 +104,23 @@ namespace sim{
    //	uint64_t iH=-1*vmath::iround(double(Hmax)*1.0E6); // uT
 
 	double demag_factor[3]={0.0,0.0,0.0};
+
 	double head_position[2]={0.0,cs::system_dimensions[1]*0.5}; // A
-	double head_speed=30.0; /// nm/ns
+	double head_speed = 200.0; // A/s
+//	double head_speed=30.0; /// nm/ns
+	double hamr_laser_peak_time = 500.0e-12; //s
+	double hamr_fwhm_x = 200.0; // A
+	double hamr_fwhm_y = 200.0; // A
+	double hamr_H_bounds_x = cs::system_dimensions[0]; // A
+	double hamr_H_bounds_y = cs::system_dimensions[1]; // A
+	double hamr_H_osc_amplit = hamr_H_bounds_x; // A
+	double hamr_H_ramp_time = 1.0e-12;
+	double hamr_bit_spacing_x = 0.0;
+	double hamr_bit_spacing_y = 0.0;
+	bool   hamr_single_bit=false;
+	bool   harm_continuous=false;
 	bool   head_laser_on=false;
+
 	bool   constraint_rotation=false; /// enables rotation of spins to new constraint direction
 	bool   constraint_phi_changed=false; /// flag to note change in phi
 	double constraint_phi=0.0; /// Constrained minimisation vector (azimuthal) [degrees]
@@ -194,7 +208,7 @@ namespace sim{
       sim::checkpoint_loaded_flag=false;
 
 		sim::time++;
-		sim::head_position[0]+=sim::head_speed*mp::dt_SI*1.0e10;
+//		sim::head_position[0]+=sim::head_speed*mp::dt_SI*1.0e10;
 
       // Update dipole fields
 		dipole::calculate_field(sim::time, atoms::x_spin_array, atoms::y_spin_array, atoms::z_spin_array);

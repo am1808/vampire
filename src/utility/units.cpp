@@ -59,7 +59,7 @@
 ///
 namespace units {
 
-	const int max_units=44;
+	const int max_units=58;
 
 	const double pi=M_PI;
 	//const double bohr_magneton=7.0;
@@ -148,6 +148,21 @@ int init(){
 		unit[42]="zs";			conversion[42]=1.0E-21;				type[42]="time"; // zeptoseconds
       // New
       unit[43]="zJ";			conversion[43]=1.0E-21; 			type[43]="energy";		// zeptoJoules
+      // Velocity
+      unit[44]="A/s";		conversion[44]=1.0;     			type[44]="velocity";		// Angstrom per second
+      unit[45]="m/s";		conversion[45]=1.0E10; 				type[45]="velocity";		// Metres per second
+      unit[46]="cm/s";		conversion[46]=1.0E8; 				type[46]="velocity";		// Centimetres per second
+      unit[47]="mm/s";		conversion[47]=1.0E7;				type[47]="velocity";		// Millimetres per second
+      unit[48]="um/s";		conversion[48]=1.0E4; 				type[48]="velocity";		// Micrometres per second
+      unit[49]="nm/s";		conversion[49]=1.0E1; 				type[49]="velocity";		// Nanometres per second
+      unit[50]="pm/s";		conversion[50]=1.0E-3;				type[50]="velocity";		// Picometres per second
+      unit[51]="in/s";		conversion[51]=2.54E8; 				type[51]="velocity";		// Imperial Inches per second
+      unit[52]="feet/s";	conversion[52]=3.12E9; 				type[52]="velocity";		// Imperial Feet per second
+      unit[53]="A/ms";		conversion[53]=1.0E3;				type[53]="velocity";		// Angstrom per milliseconds
+      unit[54]="A/us";		conversion[54]=1.0E6;				type[54]="velocity";		// Angstrom per microseconds
+      unit[55]="A/ns";		conversion[55]=1.0E9;				type[55]="velocity";		// Angstrom per nanoseconds
+      unit[56]="A/ps";		conversion[56]=1.0E12;				type[56]="velocity";		// Angstrom per picoseconds
+      unit[57]="nm/ns";		conversion[57]=1.0E8; 				type[57]="velocity";		// Nanometers per nanosecond
 
       // temperature C, F, K; angles degrees, rad, mrad;
 		// Set initialised flag

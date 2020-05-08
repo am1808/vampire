@@ -13,6 +13,7 @@
 // Vampire headers
 #include "sim.hpp"
 #include "internal.hpp"
+#include "atoms.hpp"
 
 namespace sim{
 

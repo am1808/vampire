@@ -314,25 +314,33 @@ int calculate_dipolar_fields(const int start_index,const int end_index){
 }
 
 void calculate_hamr_fields(const int start_index,const int end_index){
+	///======================================================
+	/// 		Subroutine to calculate HAMR fields
+	///
+	///			Version 1 Richard Evans 2011
+	///			Version 2 Andrea Meo 01/05/2020
+	///======================================================
 
 	if(err::check==true){std::cout << "calculate_hamr_fields has been called" << std::endl;}
 
 	// Declare hamr variables
-	const double fwhm=200.0; // A
-	const double fwhm2=fwhm*fwhm;
+	const double fwhm_x=sim::hamr_fwhm_x;
+	const double fwhm_y=sim::hamr_fwhm_y;
 	const double px = sim::head_position[0];
 	const double py = sim::head_position[1];
-	const double DeltaT=sim::Tmax-sim::Tmin;
+	//const double DeltaT = sim::Tmax - sim::Tmin;
+	const double DeltaT= sim::temperature - sim::Tmin;
 
-	// declare head-field variables
-	const double H_bounds_min[2]={-400.0,-250.0}; // A
-	const double H_bounds_max[2]={-100.0,+250.0}; // A
-	const double H_osc_freq=200.0; // A
-	const double Hloc_min_x=sim::head_position[0]+H_bounds_min[0];
-	const double Hloc_min_y=sim::head_position[1]+H_bounds_min[1];
-	const double Hloc_max_x=sim::head_position[0]+H_bounds_max[0];
-	const double Hloc_max_y=sim::head_position[1]+H_bounds_max[1];
-	const double Hloc_parity_field=sim::H_applied*double(2*(int(sim::head_position[0]/H_osc_freq)%2)-1);
+	// declare head-field variables sim::hamr_H_bounds_min[0]
+	const double H_bounds_x=sim::hamr_H_bounds_x;
+	const double H_bounds_y=sim::hamr_H_bounds_y;
+	const double H_osc_amplit=sim::hamr_H_osc_amplit; // 200.0; // A
+	const double Hloc_min_x=sim::head_position[0]-H_bounds_x;
+	const double Hloc_min_y=sim::head_position[1]-H_bounds_y;
+	const double Hloc_max_x=sim::head_position[0]+H_bounds_x;
+	const double Hloc_max_y=sim::head_position[1]+H_bounds_y;
+	const double Hloc_parity_field=sim::H_applied*(-1.0)*double(2*(int(sim::head_position[0]/H_osc_amplit)%2)-1);
+	//const double Hloc_parity_field=sim::H_applied;
 	const double Hvecx=sim::H_vec[0];
 	const double Hvecy=sim::H_vec[1];
 	const double Hvecz=sim::H_vec[2];
@@ -345,10 +353,22 @@ void calculate_hamr_fields(const int start_index,const int end_index){
 	if(sim::head_laser_on){
 		for(int atom=start_index;atom<end_index;atom++){
 			const int imaterial=atoms::type_array[atom];
-			const double cx = atoms::x_coord_array[atom];
-			const double cy = atoms::y_coord_array[atom];
-			const double r2 = (cx-px)*(cx-px)+(cy-py)*(cy-py);
-			const double sqrt_T = sqrt(sim::Tmin+DeltaT*exp(-r2/fwhm2));
+			double sqrt_T = sqrt( sim::temperature );
+			// ???? Why do I have this check????
+//			if(fwhm_x < 1.0e4 && fwhm_y < 1.0e4){
+				const double cx = atoms::x_coord_array[atom];
+				const double cy = atoms::y_coord_array[atom];
+				//const double r2 = (cx-px)*(cx-px)+(cy-py)*(cy-py);
+				const double cx2 = (cx-px)*(cx-px);
+				const double cy2 = (cy-py)*(cy-py);
+				const double laser_sigma_x = fwhm_x / sqrt(8.0*log(2.0));
+				const double laser_sigma_y = fwhm_y / sqrt(8.0*log(2.0));
+				const double laser_sigma_x2 = laser_sigma_x*laser_sigma_x;
+				const double laser_sigma_y2 = laser_sigma_y*laser_sigma_y;
+				sqrt_T = sqrt( sim::Tmin + DeltaT * exp( -cx2/( 2.0 * laser_sigma_x2 )) * exp( -cy2/( 2.0 * laser_sigma_y2 )) );
+				//sqrt_T = sqrt( sim::Tmin + DeltaT * exp( -r2/( 2.0 * laser_sigma2 ) ) );
+				//const double sqrt_T = sqrt(sim::Tmin+DeltaT*exp(-r2/(10.0*fwhm*fwhm)));
+//			}
 			const double H_th_sigma = sqrt_T*mp::material[imaterial].H_th_sigma;
 			atoms::x_total_external_field_array[atom] *= H_th_sigma; //*mtrandom::gaussian();
 			atoms::y_total_external_field_array[atom] *= H_th_sigma; //*mtrandom::gaussian();
@@ -382,7 +402,7 @@ void calculate_hamr_fields(const int start_index,const int end_index){
 			atoms::y_total_external_field_array[atom] *= H_th_sigma; //*mtrandom::gaussian();
 			atoms::z_total_external_field_array[atom] *= H_th_sigma; //*mtrandom::gaussian();
 		}
-	}
+	} // end of global temperature and field
 }
 
 void calculate_fmr_fields(const int start_index,const int end_index){

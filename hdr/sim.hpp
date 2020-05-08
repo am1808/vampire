@@ -96,7 +96,19 @@ namespace sim{
 
 	extern double head_position[2];
 	extern double head_speed;
-	extern bool   head_laser_on;
+   extern double hamr_laser_peak_time;
+   extern double hamr_fwhm_x;
+   extern double hamr_fwhm_y;
+   extern double hamr_H_bounds_x;
+   extern double hamr_H_bounds_y;
+   extern double hamr_H_osc_amplit;
+   extern double hamr_H_ramp_time;
+   extern double hamr_bit_spacing_x;
+   extern double hamr_bit_spacing_y;
+   extern bool   head_laser_on;
+   extern bool   hamr_single_bit;
+   extern bool   harm_continuous;
+   extern bool   head_laser_on;
 
 	extern double cooling_time;
 	extern int cooling_function_flag;

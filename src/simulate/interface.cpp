@@ -95,6 +95,108 @@ namespace sim{
          return true;
       }
       //--------------------------------------------------------------------
+      test="hamr-laser-peak-time";
+      if(word==test){
+         double dt = atof(value.c_str());
+         // Test for valid range
+         vin::check_for_valid_value(dt, word, line, prefix, unit, "time", 1.0e-20, 1.0e-6,"input","0.01 attosecond - 1 picosecond");
+         sim::hamr_laser_peak_time = dt;
+         return true;
+      }
+      //--------------------------------------------------------------------
+      test="hamr-laser-FWHM-x";
+      if(word==test){
+         double f = atof(value.c_str());
+         // Test for valid range
+         vin::check_for_valid_value(f, word, line, prefix, unit, "length", 0.1, 5.0e7,"input","0.1 Angstroms - 5 millimetre");
+         sim::hamr_fwhm_x = f;
+         return true;
+      }
+      //--------------------------------------------------------------------
+      test="hamr-laser-FWHM-y";
+      if(word==test){
+         double f = atof(value.c_str());
+         // Test for valid range
+         vin::check_for_valid_value(f, word, line, prefix, unit, "length", 0.1, 5.0e7,"input","0.1 Angstroms - 5 millimetre");
+         sim::hamr_fwhm_y = f;
+         return true;
+      }
+      //--------------------------------------------------------------------
+      test="hamr-head-speed";
+      if(word==test){
+         double f = atof(value.c_str());
+         // Test for valid range
+         vin::check_for_valid_value(f, word, line, prefix, unit, "velocity", 0.0, 1.0e18,"input","0 Angstroms/s - 100000000 m/s");
+         sim::head_speed = f;
+         return true;
+      }
+      //--------------------------------------------------------------------
+      test="hamr-head-field-x";
+      if(word==test){
+         double f = atof(value.c_str());
+         // Test for valid range
+         vin::check_for_valid_value(f, word, line, prefix, unit, "length", 0.1, 1.0e7,"input","0.1 Angstroms - 1 millimetre");
+         sim::hamr_H_bounds_x = f;
+         return true;
+      }
+      //--------------------------------------------------------------------
+      test="hamr-head-field-y";
+      if(word==test){
+         double f = atof(value.c_str());
+         // Test for valid range
+         vin::check_for_valid_value(f, word, line, prefix, unit, "length", 0.1, 1.0e7,"input","0.1 Angstroms - 1 millimetre");
+         sim::hamr_H_bounds_y = f;
+         return true;
+      }
+      //--------------------------------------------------------------------
+      test="hamr-field-oscillation-frequency";
+      if(word==test){
+         double f = atof(value.c_str());
+         // Test for valid range
+         vin::check_for_valid_value(f, word, line, prefix, unit, "length", 0.1, 1.0e7,"input","0.1 Angstroms - 1 millimetre");
+         sim::hamr_H_osc_amplit = f;
+         return true;
+      }
+      //--------------------------------------------------------------------
+      test="hamr-field-ramp-time";
+      if(word==test){
+         double dt = atof(value.c_str());
+         // Test for valid range
+         vin::check_for_valid_value(dt, word, line, prefix, unit, "time", 1.0e-20, 1.0e-6,"input","0.01 attosecond - 1 picosecond");
+         sim::hamr_H_ramp_time = dt;
+         return true;
+      }
+      //--------------------------------------------------------------------
+      test="hamr-bit-spacing-x";
+      if(word==test){
+         double f = atof(value.c_str());
+         // Test for valid range
+         vin::check_for_valid_value(f, word, line, prefix, unit, "length", 0.0, 1.0e7,"input","0.1 Angstroms - 1 millimetre");
+         sim::hamr_bit_spacing_x = f;
+         return true;
+      }
+      //--------------------------------------------------------------------
+      test="hamr-bit-spacing-y";
+      if(word==test){
+         double f = atof(value.c_str());
+         // Test for valid range
+         vin::check_for_valid_value(f, word, line, prefix, unit, "length", 0.0, 1.0e7,"input","0.1 Angstroms - 1 millimetre");
+         sim::hamr_bit_spacing_y = f;
+         return true;
+      }
+      //--------------------------------------------------------------------
+      test="hamr-single-bit";
+      if(word==test){
+         sim::hamr_single_bit = true;
+         return true;
+      }
+      //--------------------------------------------------------------------
+      test="hamr-continuous";
+      if(word==test){
+         sim::harm_continuous = true;
+         return true;
+      }
+      //--------------------------------------------------------------------
       // input parameter not found here
       return false;
    }
